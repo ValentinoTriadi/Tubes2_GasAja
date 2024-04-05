@@ -1,77 +1,126 @@
-package main 
- 
-import ( 
-	"encoding/csv" 
-	"github.com/gocolly/colly" 
-	"log" 
-	"os"
+package main
+
+import (
 	"fmt"
-) 
- 
-// initializing a data structure to keep the scraped data 
-type PokemonProduct struct { 
-	url, image, name, price string 
-} 
- 
-func main() { 
-	fmt.Println("Scraping the website...")
+	"log"
+	"net/http"
+	"strings"
+	"time"
 
-	// initializing the slice of structs to store the data to scrape 
-	var pokemonProducts []PokemonProduct 
- 
-	// creating a new Colly instance 
-	c := colly.NewCollector() 
- 
-	// visiting the target page 
-	c.Visit("https://scrapeme.live/shop/") 
- 
-	// scraping logic 
-	c.OnHTML("li.product", func(e *colly.HTMLElement) { 
-		pokemonProduct := PokemonProduct{} 
- 
-		pokemonProduct.url = e.ChildAttr("a", "href") 
-		pokemonProduct.image = e.ChildAttr("img", "src") 
-		pokemonProduct.name = e.ChildText("h2") 
-		pokemonProduct.price = e.ChildText(".price")
-		fmt.Println(pokemonProduct)
-		
-		pokemonProducts = append(pokemonProducts, pokemonProduct) 
-	}) 
-	fmt.Println(pokemonProducts)
- 
-	// opening the CSV file 
-	file, err := os.Create("products.csv") 
-	if err != nil { 
-		log.Fatalln("Failed to create output CSV file", err) 
-	} 
-	defer file.Close() 
- 
-	// initializing a file writer 
-	writer := csv.NewWriter(file) 
- 
-	// writing the CSV headers 
-	headers := []string{ 
-		"url", 
-		"image", 
-		"name", 
-		"price", 
-	} 
-	writer.Write(headers) 
- 
-	// writing each Pokemon product as a CSV row 
-	for _, pokemonProduct := range pokemonProducts { 
-		// converting a PokemonProduct to an array of strings 
-		record := []string{ 
-			pokemonProduct.url, 
-			pokemonProduct.image, 
-			pokemonProduct.name, 
-			pokemonProduct.price, 
-		} 
- 
-		// adding a CSV record to the output file 
-		writer.Write(record) 
-	} 
-	defer writer.Flush() 
+	"github.com/PuerkitoBio/goquery"
+)
 
-	fmt.Println("Done...")
+type web struct {
+	url, title string
+}
+
+func main() {
+	// // input
+	// var keyword, start string
+	// var limit int
+
+	// // Get the keyword
+	// fmt.Print("Enter the keyword: ")
+	// fmt.Scanf("%v", &keyword)
+
+	// // Get the start page
+	// fmt.Println("Enter the start keyword: ")
+	// fmt.Scanf("%v", &start)
+
+	// // Get the limit
+	// fmt.Println("Enter the limit: ")
+	// _, err := fmt.Scanf("%d", &limit)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+
+	// temp declaration
+	keyword := "Bahasa Jawa"
+	start := "Kucing"
+	limit := 2
+
+	// Start scraping
+	timeStart := time.Now()
+	web := getWeb(web{"/wiki/" + start, start}, keyword, limit, []web{})
+	timeEnd := time.Now()
+
+	// print the result
+	fmt.Println("Result:")
+	for _, w := range web {
+		fmt.Print(w.title)
+		if w.title != keyword {
+			fmt.Print(" -> ")
+		}
+	}
+	println()
+	println("Executed in", timeEnd.Sub(timeStart).Seconds(), "seconds")
+}
+
+func getWeb(webEntity web, keyword string, limit int, Res []web) []web {
+
+	if limit == 0 {
+		return Res
+	}
+
+	// Base URL
+	BASEURL := "https://id.wikipedia.org"
+
+	// Found Condition
+	found := false
+
+	// Send a GET request to the URL
+	response, err := http.Get(BASEURL + webEntity.url)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer response.Body.Close()
+
+	// Parse the HTML response
+	doc, err := goquery.NewDocumentFromReader(response.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Slice to keep all the hyperlinks and their titles
+	var webs []web
+
+	// Find all anchor tags in the HTML document
+	doc.Find("div.mw-body-content").Find("a").Each(func(i int, s *goquery.Selection) {
+		// Get the href attribute value
+		href, exists := s.Attr("href")
+		if exists {
+			// Get the title of the hyperlink
+			title, texists := s.Attr("title")
+			if texists {
+
+				// Add the hyperlink and title to the webs slice if title start with "/wiki/"
+				if strings.HasPrefix(href, "/wiki/") {
+					webs = append(webs, web{href, title})
+
+					// Check if the title suit keyword
+					if title == keyword {
+						found = true
+						Res = append(Res, webEntity)
+						Res = append(Res, web{href, title})
+					}
+				}
+
+			}
+		}
+	})
+
+	if !found {
+		// call getweb with all hyperlink in webs
+		Res = append(Res, webEntity)
+		for _, w := range webs {
+			get := getWeb(w, keyword, limit-1, Res)
+			if get[len(get)-1].title == keyword {
+				Res := get
+				return Res
+			}
+		}
+	}
+
+	return Res
 }
