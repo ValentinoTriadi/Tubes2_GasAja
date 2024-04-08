@@ -1,6 +1,7 @@
 import { BackgroundComponent } from "@/components/background-component";
 import { MainCard } from "@/components/MainCard";
 import { ModeToggle } from "@/components/ui/dark-mode-toggle";
+import { Credits } from "@/components/credits";
 import Image from "next/image";
 
 export default function Home() {
@@ -11,7 +12,7 @@ export default function Home() {
       </div>
       <BackgroundComponent/>
       <MainCard/>
-      
+      <Credits/>
     </main>
   );
 }
