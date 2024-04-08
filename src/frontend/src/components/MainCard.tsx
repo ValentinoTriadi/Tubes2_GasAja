@@ -12,6 +12,7 @@ export interface DataProps {
     StartKeyword: string;
     SearchKeyword: string;
     MaxIteration: number | undefined;
+    Language: string;
 }
 
 
@@ -21,7 +22,8 @@ export const MainCard = () => {
         Algorithm: "",
         StartKeyword: "",
         SearchKeyword: "",
-        MaxIteration: undefined
+        MaxIteration: undefined,
+        Language: ""
     });
     const [result, setResult] = useState<ResultProps | null>(null);
 

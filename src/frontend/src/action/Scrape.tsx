@@ -8,7 +8,8 @@ export const scrape = async (data: DataProps) => {
     const body = {
         keyword: data.SearchKeyword,
         start: data.StartKeyword,
-        limit: data.MaxIteration
+        limit: data.MaxIteration,
+        lang: data.Language
     }
     const response = await axios.post(
         "http://localhost:8000/api/scrape",

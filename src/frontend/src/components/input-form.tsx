@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import React, { useState } from "react"
+import React, { useState, useTransition } from "react"
 import { 
   Select,
   SelectContent,
@@ -39,6 +39,7 @@ const formSchema = z.object({
   SearchKeyword: z.string().min(1, { message: "Search keyword must be filled"}).max(50, { message: "Search keyword maximum is 50 characters" }),
   // MaxIteration: z.number().int().min(1, { message: "Minimum iterasi adalah 1"}).max(100, { message: "Maximum iterasi adalah 100" }),
   MaxIteration: numberSchema,
+  Language: z.string().min(1, { message: "Language must be filled" }).max(2, { message: "Language maximum is 2 characters" })
 })
 
 interface props {
@@ -51,6 +52,8 @@ export function InputForm({setData, setResult} : props) {
 
   const [algorithm, setAlgorithm] = useState<string>("bfs");
 
+  const [isPending, startTransition] = useTransition()
+  const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -58,6 +61,7 @@ export function InputForm({setData, setResult} : props) {
       StartKeyword: "",
       SearchKeyword: "",
       MaxIteration: 1,
+      Language: ""
     },
     mode: "all"
   })
@@ -67,12 +71,17 @@ export function InputForm({setData, setResult} : props) {
       Algorithm: algorithm,
       StartKeyword: values.StartKeyword,
       SearchKeyword: values.SearchKeyword,
-      MaxIteration: algorithm === "ids" ? values.MaxIteration : 1
+      MaxIteration: algorithm === "ids" ? values.MaxIteration : 1,
+      Language: values.Language,
     }
+    setIsLoading(true);
     setData(data);
-    scrape(data).then((res) => {
-      setResult(res);
-    })
+    startTransition(() => {
+      scrape(data).then((res) => {
+        setResult(res);
+      })
+			setIsLoading(false)
+		})
   }
 
   // 3. Render your form.
@@ -133,7 +142,30 @@ export function InputForm({setData, setResult} : props) {
               </FormItem>
             )}
           />}
-          <Button type="submit">Start</Button>
+          <FormField
+            control={form.control}
+            name="Language"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Language</FormLabel>
+                <FormControl>
+                <Select onValueChange={field.onChange} defaultValue={field.value} {...field} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select the Language"/>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="id">Bahasa Indonesia</SelectItem>
+                      <SelectItem value="en">English</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button type="submit" disabled={isLoading}>Start</Button>
         </form>
       </Form>
     </div>

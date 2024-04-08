@@ -21,6 +21,7 @@ type Input struct {
 	Keyword string `json:"keyword"`
 	Start   string `json:"start"`
 	Limit   int    `json:"limit"`
+	Lang	string `json:"lang"`
 }
 
 func main() {
@@ -72,18 +73,24 @@ func scrapeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Base URL
+	BASEURL := "https://" + i.Lang + ".wikipedia.org"
+
 
 	// Start scraping
 	timeStart := time.Now()
-	webs := getWeb(web{"/wiki/" + i.Start, i.Start}, i.Keyword, i.Limit, []web{})
+	var count int
+	webs := getWeb(web{"/wiki/" + strings.ReplaceAll(i.Start, " ", "_"), i.Start}, i.Keyword, i.Limit, []web{}, &count, &BASEURL)
 	timeEnd := time.Now()
 
 	result := struct {
 		Webs    []web
 		Time    string
+		Total   int
 	}{
 		Webs:    webs,
 		Time:    timeEnd.Sub(timeStart).String(),
+		Total:   count,
 	}
 	
 	fmt.Println(result)
@@ -101,21 +108,24 @@ func containsWebEntity (webEntity web, Res []web) bool {
 	return false
 }
 
-func getWeb(webEntity web, keyword string, limit int, Res []web) []web {
+func getWeb(webEntity web, keyword string, limit int, Res []web, count *int, base *string) []web {
 
 	if limit == 0 || containsWebEntity(webEntity, Res) {
 		return Res
 	}
 
 	// Base URL
-	BASEURL := "https://id.wikipedia.org"
+	BASEURL := *base
 
 	// Found Condition
 	found := false
+	var hrefFound string
+	var titleFound string
 
-	// fmt.Println("Scraping: ", BASEURL+webEntity.Url)
+	fmt.Println("Scraping: ", BASEURL+webEntity.Url)
 
 	// Send a GET request to the URL
+	(*count)++
 	response, err := http.Get(BASEURL + webEntity.Url)
 	if err != nil {
 		log.Fatal(err)
@@ -147,8 +157,8 @@ func getWeb(webEntity web, keyword string, limit int, Res []web) []web {
 					// Check if the title suit keyword
 					if title == keyword {
 						found = true
-						Res = append(Res, webEntity)
-						Res = append(Res, web{href, title})
+						hrefFound = href
+						titleFound = title
 					}
 				}
 
@@ -160,7 +170,7 @@ func getWeb(webEntity web, keyword string, limit int, Res []web) []web {
 		// call getweb with all hyperlink in webs
 		Res = append(Res, webEntity)
 		for _, w := range webs {
-			get := getWeb(w, keyword, limit-1, Res)
+			get := getWeb(w, keyword, limit-1, Res, count, base)
 			if get[len(get)-1].Title == keyword {
 				Res := get
 				return Res
@@ -168,5 +178,7 @@ func getWeb(webEntity web, keyword string, limit int, Res []web) []web {
 		}
 	}
 
+	Res = append(Res, webEntity)
+	Res = append(Res, web{hrefFound, titleFound})
 	return Res
 }
