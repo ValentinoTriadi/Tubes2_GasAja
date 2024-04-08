@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,58 +9,101 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/gorilla/mux"
 )
 
 type web struct {
-	url, title string
+	Url		string `json:"url"`
+	Title 	string `json:"title"`
+}
+
+type Input struct {
+	Keyword string `json:"keyword"`
+	Start   string `json:"start"`
+	Limit   int    `json:"limit"`
 }
 
 func main() {
-	// // input
-	// var keyword, start string
-	// var limit int
+	// Create Router
+    router := mux.NewRouter()
 
-	// // Get the keyword
-	// fmt.Print("Enter the keyword: ")
-	// fmt.Scanf("%v", &keyword)
+	// Handle route
+	router.HandleFunc("/", helloWorld).Methods("GET")
+	router.HandleFunc("/api/scrape", scrapeHandler).Methods("POST")
 
-	// // Get the start page
-	// fmt.Println("Enter the start keyword: ")
-	// fmt.Scanf("%v", &start)
+	enchancedRouter := enableCORS(jsonContentTypeMiddleware(router))
 
-	// // Get the limit
-	// fmt.Println("Enter the limit: ")
-	// _, err := fmt.Scanf("%d", &limit)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
+	log.Fatal(http.ListenAndServe(":8000", enchancedRouter))
+}
+
+func enableCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 
-	// temp declaration
-	keyword := "Bahasa Jawa"
-	start := "Kucing"
-	limit := 2
+		if r.Method == "OPTIONS" {
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func jsonContentTypeMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		next.ServeHTTP(w, r)
+	})
+}
+
+func helloWorld(w http.ResponseWriter, r *http.Request) {
+		json.NewEncoder(w).Encode("Hello World")
+}
+
+func scrapeHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Start scraping...")
+	
+	var i Input
+	err := json.NewDecoder(r.Body).Decode(&i)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 
 	// Start scraping
 	timeStart := time.Now()
-	web := getWeb(web{"/wiki/" + start, start}, keyword, limit, []web{})
+	webs := getWeb(web{"/wiki/" + i.Start, i.Start}, i.Keyword, i.Limit, []web{})
 	timeEnd := time.Now()
 
-	// print the result
-	fmt.Println("Result:")
-	for _, w := range web {
-		fmt.Print(w.title)
-		if w.title != keyword {
-			fmt.Print(" -> ")
+	result := struct {
+		Webs    []web
+		Time    string
+	}{
+		Webs:    webs,
+		Time:    timeEnd.Sub(timeStart).String(),
+	}
+	
+	fmt.Println(result)
+	fmt.Println("End scraping...")
+
+	json.NewEncoder(w).Encode(result)
+}
+
+func containsWebEntity (webEntity web, Res []web) bool {
+	for _, w := range Res {
+		if w.Url == webEntity.Url {
+			return true
 		}
 	}
-	println()
-	println("Executed in", timeEnd.Sub(timeStart).Seconds(), "seconds")
+	return false
 }
 
 func getWeb(webEntity web, keyword string, limit int, Res []web) []web {
 
-	if limit == 0 {
+	if limit == 0 || containsWebEntity(webEntity, Res) {
 		return Res
 	}
 
@@ -69,8 +113,10 @@ func getWeb(webEntity web, keyword string, limit int, Res []web) []web {
 	// Found Condition
 	found := false
 
+	// fmt.Println("Scraping: ", BASEURL+webEntity.Url)
+
 	// Send a GET request to the URL
-	response, err := http.Get(BASEURL + webEntity.url)
+	response, err := http.Get(BASEURL + webEntity.Url)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -115,7 +161,7 @@ func getWeb(webEntity web, keyword string, limit int, Res []web) []web {
 		Res = append(Res, webEntity)
 		for _, w := range webs {
 			get := getWeb(w, keyword, limit-1, Res)
-			if get[len(get)-1].title == keyword {
+			if get[len(get)-1].Title == keyword {
 				Res := get
 				return Res
 			}

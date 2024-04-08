@@ -52,6 +52,8 @@ const config = {
           DEFAULT: "var(--card)",
           foreground: "var(--card-foreground)",
         },
+        ctextbase: "var(--ctextbase)",
+        ctexthover: "var(--ctexthover)",
       },
       borderRadius: {
         lg: "var(--radius)",

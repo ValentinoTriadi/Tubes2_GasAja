@@ -33,6 +33,9 @@
     --ring: var(--lblue-12);
     --hover: var(--lblue-a4);
 
+    --ctextbase: var(--lblue-8);
+    --ctexthover: var(--lblue-a10);
+
     --bg1: var(--lblue-3);
     --bg2: var(--lblue-7);
     --bg3: var(--lblue-8);
@@ -72,6 +75,8 @@
       --ring: var(--blue-12);
 
       --hover: var(--blue-a10);
+      --ctextbase: var(--blue-8);
+      --ctexthover: var(--blue-a11);
 
       --bg1: var(--blue-3);
       --bg2: var(--blue-7);
