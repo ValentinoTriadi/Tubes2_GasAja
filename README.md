@@ -1,25 +1,25 @@
 # Tubes2_GasAja
-
-
-Backend :
 ```bash
-  cd src/backend
-```
-```bash
-  go run scraper.go
+    cd src
 ```
 
-Frontend :
+for windows :
 ```bash
-  cd src/frontend
+    ./run
 ```
+for windows :
 ```bash
-  npm i
+    ./run.sh
 ```
-```bash
-  npm run dev
-```
+
 open `localhost:3000`
 
-
-Run Backend and Frontend in different terminal
+TO STOP
+for windows :
+```bash
+    ./stop
+```
+for windows :
+```bash
+    ./stop.sh
+```
