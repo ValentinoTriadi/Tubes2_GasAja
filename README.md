@@ -1,25 +1,40 @@
 # Tubes2_GasAja
+## SETUP
 ```bash
     cd src
 ```
+for windows:
+```bash
+    ./setup
+```
+for mac:
+```bash
+    ./setup.sh
+```
 
+
+## RUN
+```bash
+    cd src
+```
 for windows :
 ```bash
     ./run
 ```
-for windows :
+for mac :
 ```bash
     ./run.sh
 ```
 
 open `localhost:3000`
 
-TO STOP
+
+## STOP
 for windows :
 ```bash
     ./stop
 ```
-for windows :
+for mac :
 ```bash
     ./stop.sh
 ```
