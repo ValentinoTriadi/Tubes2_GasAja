@@ -1,0 +1,34 @@
+services:
+  backend:
+    tty: true
+    container_name: backend
+    build:
+      context: ./backend
+      target: development
+    restart: always
+    ports:
+      - 8000:8000
+    volumes:
+      - ./backend:/app/backend
+    stop_grace_period: 0s
+    networks:
+      - local
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      target: development
+    restart: always
+    ports:
+      - 3000:3000
+    env_file:
+      - frontend/.env
+    volumes:
+      - ./frontend:/app/frontend
+    stop_grace_period: 0s
+    networks:
+      - local
+
+networks:
+  local:
+    external: true

@@ -24,6 +24,8 @@ type Input struct {
 	Lang	string `json:"lang"`
 }
 
+var GlobalLimit int 
+
 func main() {
 	// Create Router
     router := mux.NewRouter()
@@ -76,6 +78,7 @@ func scrapeHandler(w http.ResponseWriter, r *http.Request) {
 	// Base URL
 	BASEURL := "https://" + i.Lang + ".wikipedia.org"
 
+	GlobalLimit = i.Limit
 
 	// Start scraping
 	timeStart := time.Now()
@@ -110,7 +113,13 @@ func containsWebEntity (webEntity web, Res []web) bool {
 
 func getWeb(webEntity web, keyword string, limit int, Res []web, count *int, base *string) []web {
 
-	if limit == 0 || containsWebEntity(webEntity, Res) {
+	if limit == 0 {
+		if webEntity.Title == keyword {
+			Res = append(Res, webEntity)
+		}
+		return Res
+	}
+	if containsWebEntity(webEntity, Res) {
 		return Res
 	}
 
@@ -122,7 +131,7 @@ func getWeb(webEntity web, keyword string, limit int, Res []web, count *int, bas
 	var hrefFound string
 	var titleFound string
 
-	fmt.Println("Scraping: ", BASEURL+webEntity.Url)
+	fmt.Println("Scraping: ", BASEURL + webEntity.Url)
 
 	// Send a GET request to the URL
 	(*count)++
@@ -150,9 +159,13 @@ func getWeb(webEntity web, keyword string, limit int, Res []web, count *int, bas
 			title, texists := s.Attr("title")
 			if texists {
 
-				// Add the hyperlink and title to the webs slice if title start with "/wiki/"
-				if strings.HasPrefix(href, "/wiki/") {
-					webs = append(webs, web{href, title})
+				// Add the hyperlink and title to the webs slice if href start with "/wiki/"
+				if strings.HasPrefix(href, "/wiki/") && !strings.Contains(href, ":") {
+
+					// Add the hyperlink and title to the webs slice if it is not already in the slice
+					if !containsWebEntity(web{href, title}, webs) {
+						webs = append(webs, web{href, title})
+					}
 
 					// Check if the title suit keyword
 					if title == keyword {
@@ -176,9 +189,20 @@ func getWeb(webEntity web, keyword string, limit int, Res []web, count *int, bas
 				return Res
 			}
 		}
+		// If keyword not found in webs, call getweb with all hyperlink in webs ()
+		// for _, w := range webs {
+		// 	get := getWeb(w, keyword, GlobalLimit, Res, count, base)
+		// 	if get[len(get)-1].Title == keyword {
+		// 		Res := get
+		// 		return Res
+		// 	}
+		// }
+	} else {	
+		Res = append(Res, webEntity)
+		Res = append(Res, web{hrefFound, titleFound})
+		return Res
 	}
-
-	Res = append(Res, webEntity)
-	Res = append(Res, web{hrefFound, titleFound})
+	// return getWeb(web{"/wiki/" + strings.ReplaceAll(Res[len(Res)-1].Title, " ", "_"), Res[len(Res)-1].Title}, keyword, GlobalLimit, Res, count, base)
+	Res = append(Res, web{"NotFOUND", "NotFOUND"})
 	return Res
 }

@@ -2,6 +2,7 @@
 
 import { DataProps } from "@/components/MainCard";
 import axios from "axios";
+import { env } from "process";
 
 export const scrape = async (data: DataProps) => {
 
@@ -12,7 +13,7 @@ export const scrape = async (data: DataProps) => {
         lang: data.Language
     }
     const response = await axios.post(
-        "http://localhost:8000/api/scrape",
+        process.env.BACKEND_BASE + "/api/scrape",
         body,
         {
             headers: {

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { DataProps } from "./MainCard";
 import { Card, CardContent, CardHeader } from "./ui/card";
+import { ScrollArea } from "./ui/scroll-area";
 
 interface ResultEntity {
     title : string;
@@ -20,7 +21,6 @@ interface props {
 
 export const DisplayCard = ({ data, result } : props) => {
     const {Algorithm, StartKeyword, SearchKeyword, MaxIteration, Language} = data;
-    console.log(result);
     return (
         <>
             <Card className="w-1/2 bg-popover rounded-md bg-clip-padding backdrop-filter backdrop-blur-md ">
@@ -36,7 +36,7 @@ export const DisplayCard = ({ data, result } : props) => {
                         {Algorithm == "ids" ? <h1><strong className="text-muted-foreground">Max Iteration:</strong> {MaxIteration}</h1> : ""}
                     </div>
                     <hr className="border-t-2 border-[var(--blue-11)] my-2 w-full" />
-                    <div>
+                    <ScrollArea className="max-h-full h-[450px]">
                         {result && result.Webs.map((item, index) => {
                             return (
                                 <div key={index} className="flex flex-wrap gap-1">
@@ -45,7 +45,7 @@ export const DisplayCard = ({ data, result } : props) => {
                                 </div>
                             );
                         })}
-                    </div>
+                    </ScrollArea>
                 </CardContent>
             </Card>
             <div className="flex flex-col gap-5 w-1/6">

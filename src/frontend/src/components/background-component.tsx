@@ -5,20 +5,20 @@ export const BackgroundComponent = () => {
     <div className='fixed w-screen h-screen z-[-1]'>
         {/* <Image src={"c1.svg"} alt='background1' width={250} height={250} className='fixed top-[40%] left-[3%]'/> */}
         <svg width="278" height="278" viewBox="0 0 278 278" fill="none" xmlns="http://www.w3.org/2000/svg" className='md:fixed md:top-[40%] md:left-[3%] hidden md:flex'>
-            <circle cx="139" cy="139" r="136.5" stroke="var(--bg1)" stroke-width="5"/>
-            <circle cx="139" cy="139" r="122.065" stroke="var(--bg1)" stroke-width="5"/>
-            <circle cx="139" cy="139" r="107.096" stroke="var(--bg1)" stroke-width="5"/>
-            <circle cx="139" cy="139" r="92.6615" stroke="var(--bg1)" stroke-width="5"/>
-            <circle cx="139" cy="139" r="78.2269" stroke="var(--bg1)" stroke-width="5"/>
+            <circle cx="139" cy="139" r="135" stroke="var(--bg1)" stroke-width="5"/>
+            <circle cx="139" cy="139" r="120" stroke="var(--bg1)" stroke-width="5"/>
+            <circle cx="139" cy="139" r="105" stroke="var(--bg1)" stroke-width="5"/>
+            <circle cx="139" cy="139" r="90" stroke="var(--bg1)" stroke-width="5"/>
+            <circle cx="139" cy="139" r="75" stroke="var(--bg1)" stroke-width="5"/>
         </svg>
 
         {/* <Image src={"c2.svg"} alt='background2' width={325} height={325} className='fixed top-0 left-[17%]'/> */}
         <svg width="411" height="206" viewBox="0 0 411 206" fill="none" xmlns="http://www.w3.org/2000/svg" className='sm:fixed sm:top-0 sm:left-[17%] hidden sm:flex'>
-            <circle cx="205.5" cy="0.5" r="202" stroke="var(--bg2)" stroke-width="7"/>
-            <circle cx="205.5" cy="0.499451" r="180.66" stroke="var(--bg2)" stroke-width="7"/>
-            <circle cx="205.5" cy="0.500519" r="158.529" stroke="var(--bg2)" stroke-width="7"/>
-            <circle cx="205.5" cy="0.500961" r="137.188" stroke="var(--bg2)" stroke-width="7"/>
-            <circle cx="205.5" cy="0.50042" r="115.848" stroke="var(--bg2)" stroke-width="7"/>
+            <circle cx="205.5" cy="0.5" r="200" stroke="var(--bg2)" stroke-width="7"/>
+            <circle cx="205.5" cy="0.5" r="180" stroke="var(--bg2)" stroke-width="7"/>
+            <circle cx="205.5" cy="0.5" r="160" stroke="var(--bg2)" stroke-width="7"/>
+            <circle cx="205.5" cy="0.5" r="140" stroke="var(--bg2)" stroke-width="7"/>
+            <circle cx="205.5" cy="0.5" r="120" stroke="var(--bg2)" stroke-width="7"/>
         </svg>
 
         {/* <Image src={"r1.svg"} alt='background3' width={180} height={180} className='fixed top-0 left-[67%]'/> */}
