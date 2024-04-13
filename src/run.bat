@@ -1,2 +1,3 @@
-docker compose build
+@echo off
+
 docker compose up

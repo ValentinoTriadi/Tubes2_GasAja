@@ -12,6 +12,7 @@ RUN go mod tidy --compat=1.17
 # Build the Go app
 # RUN go build -o scraper .
 
-CMD ["go", "run", "scraper.go"]
-
 EXPOSE 8000
+
+CMD ["go", "run", "."]
+
