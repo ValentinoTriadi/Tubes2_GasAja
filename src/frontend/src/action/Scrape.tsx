@@ -12,8 +12,12 @@ export const scrape = async (data: DataProps) => {
         limit: data.MaxIteration,
         lang: data.Language
     }
+
+    const fullURL = process.env.BACKEND_BASE + "/api/scrape/" + data.Algorithm;
+    console.log(fullURL);
+    console.log(body);
     const response = await axios.post(
-        process.env.BACKEND_BASE + "/api/scrape",
+        fullURL,
         body,
         {
             headers: {
@@ -22,5 +26,12 @@ export const scrape = async (data: DataProps) => {
         }
     );
     console.log(response.data);
+    // console.log(response.data.Webs)
+    // // console log response.data.webs
+    // for (let i = 0; i < response.data.Webs.length; i++) {
+    //     for (let j = 0; j < response.data.Webs[i].length; j++) {
+    //         console.log(response.data.Webs[i][j])
+    //     }
+    // }
     return response.data;
 }

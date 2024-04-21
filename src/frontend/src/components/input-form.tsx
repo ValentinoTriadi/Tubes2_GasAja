@@ -86,7 +86,7 @@ export function InputForm({setData, setResult} : props) {
 
   // 3. Render your form.
   return (
-    <div className="w-1/3">
+    <div className="grow min-w-[32%] w-[32%]">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <div className="flex gap-5 items-center">

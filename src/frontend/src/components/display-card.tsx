@@ -9,7 +9,7 @@ interface ResultEntity {
 }
 
 export interface ResultProps {
-    Webs : ResultEntity[];
+    Webs : ResultEntity[][];
     Time : number;
     Total: number;
 }
@@ -22,8 +22,8 @@ interface props {
 export const DisplayCard = ({ data, result } : props) => {
     const {Algorithm, StartKeyword, SearchKeyword, MaxIteration, Language} = data;
     return (
-        <>
-            <Card className="w-1/2 bg-popover rounded-md bg-clip-padding backdrop-filter backdrop-blur-md ">
+        <div className="flex grow flex-wrap gap-5 max-w-full w-2/3">
+            <Card className="min-w-[500px] max-w-full w-1/2 grow bg-popover rounded-md bg-clip-padding backdrop-filter backdrop-blur-md ">
                 <CardHeader className="text-3xl font-bold">
                     Result
                 </CardHeader>
@@ -36,34 +36,43 @@ export const DisplayCard = ({ data, result } : props) => {
                         {Algorithm == "ids" ? <h1><strong className="text-muted-foreground">Max Iteration:</strong> {MaxIteration}</h1> : ""}
                     </div>
                     <hr className="border-t-2 border-[var(--blue-11)] my-2 w-full" />
-                    <ScrollArea className="max-h-full h-[450px]">
-                        {result && result.Webs.map((item, index) => {
+                    <ScrollArea className="max-h-full h-[400px]">
+                        {result && result.Webs.map((webs, index) => {
                             return (
-                                <div key={index} className="flex flex-wrap gap-1">
-                                    <h1 className="w-fit">{"->"} {item.title} </h1>
-                                    <Link href={ "https://" + Language + ".wikipedia.org" + item.url} passHref={true} className="text-ctextbase hover:text-ctexthover"> (https://{Language}.wikipedia.org{item.url})</Link>
+                                <div key={index} className="flex flex-col">
+                                    <h1 className="text-xl font-bold my-2">Result {index + 1}</h1>
+                                    <div className="flex flex-col">
+                                        {webs.map((web, index) => {
+                                            return (
+                                                <div key={index} className="flex flex-wrap">
+                                                    <h1 className="w-fit mr-1">{"->"} {web.title} </h1>
+                                                    <Link href={ "https://" + Language + ".wikipedia.org" + web.url} className="text-ctextbase hover:text-ctexthover"> (https://{Language}.wikipedia.org{web.url})</Link>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             );
                         })}
                     </ScrollArea>
                 </CardContent>
             </Card>
-            <div className="flex flex-col gap-5 w-1/6">
-                <Card className="wfull bg-popover rounded-md bg-clip-padding backdrop-filter backdrop-blur-md py-5">
+            <div className="flex grow flex-wrap gap-5 max-w-full w-1/6 min-w-[250px] h-fit">
+                <Card className="w-fit h-fit grow bg-popover rounded-md bg-clip-padding backdrop-filter backdrop-blur-md py-5">
                     <CardContent className="px-4 py-2">
                         <div className="flex items-center ">
                             <h1><strong className="text-[var(--blue-11)]">Time:</strong> {result ? result.Time : 0}</h1>
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="wfull bg-popover rounded-md bg-clip-padding backdrop-filter backdrop-blur-md py-5">
+                <Card className="w-fit h-fit grow bg-popover rounded-md bg-clip-padding backdrop-filter backdrop-blur-md py-5">
                     <CardContent className="px-4 py-2">
                         <div className="flex items-center ">
-                            <h1><strong className="text-[var(--blue-11)]">Total artikel yang dilalui:</strong> {result ? result.Webs.length : 0}</h1>
+                            <h1><strong className="text-[var(--blue-11)]">Total artikel yang dilalui:</strong> {result ? result.Webs[0].length -1 : 0}</h1>
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="wfull bg-popover rounded-md bg-clip-padding backdrop-filter backdrop-blur-md py-5">
+                <Card className="w-fit h-fit grow bg-popover rounded-md bg-clip-padding backdrop-filter backdrop-blur-md py-5">
                     <CardContent className="px-4 py-2">
                         <div className="flex items-center ">
                             <h1><strong className="text-[var(--blue-11)]">Total artikel yang dicari:</strong> {result ? result.Total : 0}</h1>
@@ -71,6 +80,6 @@ export const DisplayCard = ({ data, result } : props) => {
                     </CardContent>
                 </Card>
             </div>
-        </>
+        </div>
     );
 }

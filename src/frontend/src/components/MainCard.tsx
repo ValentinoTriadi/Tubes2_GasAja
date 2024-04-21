@@ -34,7 +34,7 @@ export const MainCard = () => {
                 <hr className="border-t-2 border-primary mt-2 w-full" />
             </CardHeader>
             <CardContent>
-                <div className="flex gap-5 justify-start items-start w-full">
+                <div className="flex gap-5 flex-wrap justify-start items-start w-full">
                     <InputForm setData={setData} setResult={setResult}></InputForm>
                     <DisplayCard data={data} result={result} ></DisplayCard>
                 </div>

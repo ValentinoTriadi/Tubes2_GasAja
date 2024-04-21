@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/PuerkitoBio/goquery"
+	// "github.com/PuerkitoBio/goquery"
 	"github.com/gorilla/mux"
 )
 
@@ -24,6 +24,11 @@ type Input struct {
 	Lang	string `json:"lang"`
 }
 
+type ResultEntity struct {
+	index 		int		// index of parent
+	webEntity 	web
+}
+
 var GlobalLimit int 
 
 func main() {
@@ -32,7 +37,7 @@ func main() {
 
 	// Handle route
 	router.HandleFunc("/", helloWorld).Methods("GET")
-	router.HandleFunc("/api/scrape", scrapeHandler).Methods("POST")
+	router.HandleFunc("/api/scrape/bfs", bfsScrapeHandler).Methods("POST")
 
 	enchancedRouter := enableCORS(jsonContentTypeMiddleware(router))
 
@@ -65,9 +70,19 @@ func helloWorld(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode("Hello World")
 }
 
-func scrapeHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Start scraping...")
+
+/* ============================================================================ */
+/* =================================BFS Scrape================================= */
+/* ============================================================================ */
+
+func bfsScrapeHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Start BFS scraping...")
 	
+	// Var lokal
+	var count int // Total number of web entities scraped
+	var res [][]web // Slice to keep the result of the scraping
+
+	// Decode the request body into an Input struct
 	var i Input
 	err := json.NewDecoder(r.Body).Decode(&i)
 	if err != nil {
@@ -78,131 +93,27 @@ func scrapeHandler(w http.ResponseWriter, r *http.Request) {
 	// Base URL
 	BASEURL := "https://" + i.Lang + ".wikipedia.org"
 
-	GlobalLimit = i.Limit
-
 	// Start scraping
 	timeStart := time.Now()
-	var count int
-	webs := getWeb(web{"/wiki/" + strings.ReplaceAll(i.Start, " ", "_"), i.Start}, i.Keyword, i.Limit, []web{}, &count, &BASEURL)
+	bfsScrape2(web{"/wiki/" + strings.ReplaceAll(i.Start, " ", "_"), i.Start}, i.Keyword, &count, &BASEURL, &res)
 	timeEnd := time.Now()
 
+	// Encode the result into a struct and send it as a response
 	result := struct {
-		Webs    []web
+		Webs    [][]web
 		Time    string
 		Total   int
 	}{
-		Webs:    webs,
+		Webs:    res,
 		Time:    timeEnd.Sub(timeStart).String(),
 		Total:   count,
 	}
 	
-	fmt.Println(result)
 	fmt.Println("End scraping...")
 
 	json.NewEncoder(w).Encode(result)
 }
 
-func containsWebEntity (webEntity web, Res []web) bool {
-	for _, w := range Res {
-		if w.Url == webEntity.Url {
-			return true
-		}
-	}
-	return false
-}
-
-func getWeb(webEntity web, keyword string, limit int, Res []web, count *int, base *string) []web {
-
-	if limit == 0 {
-		if webEntity.Title == keyword {
-			Res = append(Res, webEntity)
-		}
-		return Res
-	}
-	if containsWebEntity(webEntity, Res) {
-		return Res
-	}
-
-	// Base URL
-	BASEURL := *base
-
-	// Found Condition
-	found := false
-	var hrefFound string
-	var titleFound string
-
-	fmt.Println("Scraping: ", BASEURL + webEntity.Url)
-
-	// Send a GET request to the URL
-	(*count)++
-	response, err := http.Get(BASEURL + webEntity.Url)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer response.Body.Close()
-
-	// Parse the HTML response
-	doc, err := goquery.NewDocumentFromReader(response.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Slice to keep all the hyperlinks and their titles
-	var webs []web
-
-	// Find all anchor tags in the HTML document
-	doc.Find("div.mw-body-content").Find("a").Each(func(i int, s *goquery.Selection) {
-		// Get the href attribute value
-		href, exists := s.Attr("href")
-		if exists {
-			// Get the title of the hyperlink
-			title, texists := s.Attr("title")
-			if texists {
-
-				// Add the hyperlink and title to the webs slice if href start with "/wiki/"
-				if strings.HasPrefix(href, "/wiki/") && !strings.Contains(href, ":") {
-
-					// Add the hyperlink and title to the webs slice if it is not already in the slice
-					if !containsWebEntity(web{href, title}, webs) {
-						webs = append(webs, web{href, title})
-					}
-
-					// Check if the title suit keyword
-					if title == keyword {
-						found = true
-						hrefFound = href
-						titleFound = title
-					}
-				}
-
-			}
-		}
-	})
-
-	if !found {
-		// call getweb with all hyperlink in webs
-		Res = append(Res, webEntity)
-		for _, w := range webs {
-			get := getWeb(w, keyword, limit-1, Res, count, base)
-			if get[len(get)-1].Title == keyword {
-				Res := get
-				return Res
-			}
-		}
-		// If keyword not found in webs, call getweb with all hyperlink in webs ()
-		// for _, w := range webs {
-		// 	get := getWeb(w, keyword, GlobalLimit, Res, count, base)
-		// 	if get[len(get)-1].Title == keyword {
-		// 		Res := get
-		// 		return Res
-		// 	}
-		// }
-	} else {	
-		Res = append(Res, webEntity)
-		Res = append(Res, web{hrefFound, titleFound})
-		return Res
-	}
-	// return getWeb(web{"/wiki/" + strings.ReplaceAll(Res[len(Res)-1].Title, " ", "_"), Res[len(Res)-1].Title}, keyword, GlobalLimit, Res, count, base)
-	Res = append(Res, web{"NotFOUND", "NotFOUND"})
-	return Res
-}
+/* ============================================================================ */
+/* =================================BFS Scrape================================= */
+/* ============================================================================ */
