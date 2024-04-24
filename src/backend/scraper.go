@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"runtime/debug"
 	"log"
 	"net/http"
 	"strings"
@@ -32,6 +33,8 @@ type ResultEntity struct {
 var GlobalLimit int 
 
 func main() {
+	// Set Runtime Limit
+	debug.SetMaxThreads(100000)
 	// Create Router
     router := mux.NewRouter()
 
