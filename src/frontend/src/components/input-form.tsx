@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import axios from "axios"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -27,18 +26,12 @@ import {
 } from "./ui/select"
 import { DataProps } from "./MainCard"
 import { scrape } from "@/action/Scrape"
+import { Loading } from "./Loading"
 
-
-const numberSchema = z.preprocess((val) => {
-	if (typeof val === 'string') return parseInt(val, 10);
-	return val;
-}, z.number().int().min(1, { message: "Minimum iteration is 1"}).max(100, { message: "Maximum iteration is 100" }))
 
 const formSchema = z.object({
   StartKeyword: z.string().min(1, { message: "Start keyword must be filled"}).max(50, { message: "Start keyword maximum is 50 characters" }),
   SearchKeyword: z.string().min(1, { message: "Search keyword must be filled"}).max(50, { message: "Search keyword maximum is 50 characters" }),
-  // MaxIteration: z.number().int().min(1, { message: "Minimum iterasi adalah 1"}).max(100, { message: "Maximum iterasi adalah 100" }),
-  MaxIteration: numberSchema,
   Language: z.string().min(1, { message: "Language must be filled" }).max(2, { message: "Language maximum is 2 characters" })
 })
 
@@ -51,16 +44,13 @@ interface props {
 export function InputForm({setData, setResult} : props) {
 
   const [algorithm, setAlgorithm] = useState<string>("bfs");
-
   const [isPending, startTransition] = useTransition()
-  const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       StartKeyword: "",
       SearchKeyword: "",
-      MaxIteration: 1,
       Language: ""
     },
     mode: "all"
@@ -71,16 +61,15 @@ export function InputForm({setData, setResult} : props) {
       Algorithm: algorithm,
       StartKeyword: values.StartKeyword,
       SearchKeyword: values.SearchKeyword,
-      MaxIteration: algorithm === "ids" ? values.MaxIteration : 1,
       Language: values.Language,
     }
-    setIsLoading(true);
+    // setIsLoading(true);
     setData(data);
     startTransition(() => {
       scrape(data).then((res) => {
         setResult(res);
       })
-			setIsLoading(false)
+			// setIsLoading(false)
 		})
   }
 
@@ -129,19 +118,6 @@ export function InputForm({setData, setResult} : props) {
               </FormItem>
             )}
           />
-          {algorithm === "ids" && <FormField
-            control={form.control}
-            name="MaxIteration"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Maximum Iteration</FormLabel>
-                <FormControl>
-                <Input placeholder="1" type="number" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />}
           <FormField
             control={form.control}
             name="Language"
@@ -165,10 +141,10 @@ export function InputForm({setData, setResult} : props) {
               </FormItem>
             )}
           />
-          <Button type="submit" disabled={isLoading}>Start</Button>
+          <Button type="submit" disabled={isPending}>Start</Button>
         </form>
       </Form>
+      {isPending && <Loading/>}
     </div>
-
   )
 }

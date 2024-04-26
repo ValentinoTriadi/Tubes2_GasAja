@@ -99,7 +99,7 @@
 
 
 .dark, .dark-theme {
-  --base: #1d1d1d;
+  --base: #1D1D1D;
 
   --blue-1: #171d2b;
   --blue-2: #191f31;
@@ -241,7 +241,7 @@
 }
 
 :root, .light, .light-theme {
-  --lblue-1: #fdfdfe;
+  --lblue-1: #FDFDFE;
   --lblue-2: #f7f9ff;
   --lblue-3: #edf2fe;
   --lblue-4: #dfeaff;

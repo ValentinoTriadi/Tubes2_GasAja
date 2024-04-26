@@ -6,12 +6,15 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
+
 func bfsScrape2(webEntity web, keyword string, count *int, base *string, saveRes *[][]web) {
 	// Initialize local variable 
+	timeStart := time.Now()
 	var storage = [][]ResultEntity{}
 	var currentLevel = []ResultEntity{}
 	var nextLevel = []ResultEntity{}
@@ -24,6 +27,8 @@ func bfsScrape2(webEntity web, keyword string, count *int, base *string, saveRes
 	storage = append(storage, []ResultEntity{temp})
 
 	var wg sync.WaitGroup
+
+	go tb.AddTokens(MaxToken, 1*time.Second) // Tambahkan Max token setiap detik
 	
 	// Start BFS scraping until found
 	for !found {
@@ -51,6 +56,12 @@ func bfsScrape2(webEntity web, keyword string, count *int, base *string, saveRes
 		storage = append(storage, nextLevel) 	// Add next level to storage
 		level++ 								// Increment level
 		nextLevel = []ResultEntity{} 			// empty next level
+
+		// Limit time to 5 minutes
+		if time.Since(timeStart) > 5*time.Minute {
+			fmt.Println("Time limit reached")
+			return
+		}
 	}
 }
 
@@ -59,17 +70,41 @@ func bfsScrape(URL string, count *int, storage *[][]ResultEntity, keyword string
 
 	defer wg.Done()
 
+	// Tunggu sampai token tersedia
+	for !tb.Consume() {
+		time.Sleep(100 * time.Millisecond) // Tidur selama durasi singkat jika token tidak tersedia
+	}
+
 	// temporary code for testing purpose
 	fmt.Println("Scraping: ", URL)
 	// fmt.Println("Level: ", level, "Index: ", index)
 
 	// Send a GET request to the URL
 	(*count)++ // Increment the total number of web entities scraped
-	response, err := http.Get(URL)
+
+	headers := map[string]string{
+		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+	}
+	client := &http.Client{}
+
+	req, err := http.NewRequest("GET", URL, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for key, value := range headers {
+		req.Header.Set(key, value)
+	}
+
+	response, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer response.Body.Close()
+
+	if response.StatusCode != 200 {
+		fmt.Println("Failed to retrieve page")
+		return []web{}
+	}
 
 	// Parse the HTML response
 	doc, err := goquery.NewDocumentFromReader(response.Body)
@@ -110,6 +145,7 @@ func bfsScrape(URL string, count *int, storage *[][]ResultEntity, keyword string
 			}
 		}
 	})
+
 
 	return webs
 }
