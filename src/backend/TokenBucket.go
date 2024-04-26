@@ -33,6 +33,6 @@ func (tb *TokenBucket) AddTokens(rate int, period time.Duration) {
 	}
 }
 
-var MaxToken = 30
+var MaxToken = 25
 // Inisialisasi token bucket
 var tb = TokenBucket{tokens: MaxToken} // Atur jumlah token awal dan tingkat maksimum

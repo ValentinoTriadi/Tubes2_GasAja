@@ -92,7 +92,7 @@ func gocollyScrape(w web, keyword string, BASEURL string, index int, found *bool
 
 	c.Limit(&colly.LimitRule{
 		DomainGlob:  "*",
-		Parallelism: 15,
+		Parallelism: 10,
 	})
 
 	c.SetRequestTimeout(100 * time.Second)
