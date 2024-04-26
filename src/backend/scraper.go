@@ -39,8 +39,8 @@ func main() {
 
 	// Handle route
 	router.HandleFunc("/", helloWorld).Methods("GET")
-	router.HandleFunc("/api/scrape/bfs", bfsScrapeHandler).Methods("POST")
-	router.HandleFunc("/api/scrape/bfs2", gocollytest).Methods("POST")
+	router.HandleFunc("/api/scrape/bfs2", bfsScrapeHandler).Methods("POST")
+	router.HandleFunc("/api/scrape/bfs", gocollytest).Methods("POST")
 	router.HandleFunc("/api/scrape/bfs3", gocollyTestKucing).Methods("GET")
 
 	enchancedRouter := enableCORS(jsonContentTypeMiddleware(router))
@@ -133,7 +133,7 @@ func gocollytest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var res [][]web
-	count := 0
+	var allWebs = []web{}
 
 	// Base URL
 	BASEURL := "https://" + i.Lang + ".wikipedia.org"
@@ -141,14 +141,20 @@ func gocollytest(w http.ResponseWriter, r *http.Request) {
 	// Start scraping
 	timeStart := time.Now()
 	// gocollyScrape(web{"/wiki/" + strings.ReplaceAll(i.Start, " ", "_"), i.Start}, i.Keyword, &count, &BASEURL, &res)
-	gocollyScrapeBase(web{"/wiki/" + strings.ReplaceAll(i.Start, " ", "_"), i.Start}, i.Keyword, BASEURL, &res, &count)
+	gocollyScrapeBase(web{"/wiki/" + strings.ReplaceAll(i.Start, " ", "_"), i.Start}, i.Keyword, BASEURL, &res, &allWebs)
 	timeEnd := time.Now()
+
+	fmt.Println(allWebs)
 
 	// Encode the result into a struct and send it as a response
 	result := struct {
+		Webs    [][]web
 		Time    string
+		Total   int
 	}{
+		Webs:    res,
 		Time:    timeEnd.Sub(timeStart).String(),
+		Total:   len(allWebs),
 	}
 	
 	fmt.Println("End scraping...")
@@ -157,11 +163,12 @@ func gocollytest(w http.ResponseWriter, r *http.Request) {
 }
 
 func gocollyTestKucing(w http.ResponseWriter, r *http.Request){
-	var res [][]web
-	count := 0
-	timestart := time.Now()
-	gocollyScrapeBase(web{"/wiki/Munich", "Munich"}, "Fischlham", "https://en.wikipedia.org", &res, &count)
-	fmt.Println("Time: ", time.Since(timestart))
-	fmt.Println("Total: ", count)
-	fmt.Println(res)
+	// var res [][]web
+	// var allWebs []web
+	// count := 0
+	// timestart := time.Now()
+	// gocollyScrapeBase(web{"/wiki/Munich", "Munich"}, "Fischlham", "https://en.wikipedia.org", &res, &count, &allWebs)
+	// fmt.Println("Time: ", time.Since(timestart))
+	// fmt.Println("Total: ", count)
+	// fmt.Println(res)
 }

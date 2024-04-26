@@ -12,7 +12,7 @@ import (
 
 
 
-func gocollyScrapeBase(w web, keyword string, BASEURL string, saveRes *[][]web, count *int) {
+func gocollyScrapeBase(w web, keyword string, BASEURL string, saveRes *[][]web, allWebs *[]web) {
 	// Initialize local variable
 	timeStart := time.Now()
 	var storage = [][]ResultEntity{}
@@ -36,7 +36,7 @@ func gocollyScrapeBase(w web, keyword string, BASEURL string, saveRes *[][]web, 
 		// Loop through current level
 		for index, res := range storage[level] {
 			wg.Add(1)
-			go gocollyScrape(res.webEntity, keyword, BASEURL, index, &found, level, saveRes, &storage, count, ch, &wg)
+			go gocollyScrape(res.webEntity, keyword, BASEURL, index, &found, level, saveRes, &storage, ch, &wg, allWebs)
 
 			// Limit time to 5 minutes
 			if time.Since(timeStart) > 5*time.Minute {
@@ -67,7 +67,7 @@ func gocollyScrapeBase(w web, keyword string, BASEURL string, saveRes *[][]web, 
 	}
 }
 
-func gocollyScrape(w web, keyword string, BASEURL string, index int, found *bool, level int, saveRes *[][]web, storage *[][]ResultEntity, count *int, ch chan<- ResultEntity, wg *sync.WaitGroup) {
+func gocollyScrape(w web, keyword string, BASEURL string, index int, found *bool, level int, saveRes *[][]web, storage *[][]ResultEntity, ch chan<- ResultEntity, wg *sync.WaitGroup, allWebs *[]web) {
 
 	defer wg.Done()
 
@@ -115,7 +115,9 @@ func gocollyScrape(w web, keyword string, BASEURL string, index int, found *bool
 	})
 
 	c.OnResponse(func(r *colly.Response) {
-		(*count)++
+		if !containsWebEntity(web{r.Request.URL.Path, r.Request.URL.Path}, *allWebs) {
+			*allWebs = append(*allWebs, web{r.Request.URL.Path, r.Request.URL.Path})
+		}
 	})
 
 	c.OnScraped(func(r *colly.Response) {
