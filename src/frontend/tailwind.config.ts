@@ -69,10 +69,15 @@ const config = {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
+        "typewriter": {
+          from: { width: "0" },
+          to: { width: "100%" },
+        }, 
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "typewriter": "typewriter 2s steps(11) forwards"  
       },
     },
   },

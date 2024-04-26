@@ -9,13 +9,12 @@ export const scrape = async (data: DataProps) => {
     const body = {
         keyword: data.SearchKeyword,
         start: data.StartKeyword,
-        limit: data.MaxIteration,
         lang: data.Language
     }
 
     const fullURL = process.env.BACKEND_BASE + "/api/scrape/" + data.Algorithm;
-    console.log(fullURL);
-    console.log(body);
+    // console.log(fullURL);
+    // console.log(body);
     const response = await axios.post(
         fullURL,
         body,
@@ -25,7 +24,7 @@ export const scrape = async (data: DataProps) => {
             }
         }
     );
-    console.log(response.data);
+    // console.log(response.data);
     // console.log(response.data.Webs)
     // // console log response.data.webs
     // for (let i = 0; i < response.data.Webs.length; i++) {
