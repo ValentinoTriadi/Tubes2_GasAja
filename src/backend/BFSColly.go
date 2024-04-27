@@ -11,7 +11,6 @@ import (
 )
 
 
-
 func gocollyScrapeBase(w web, keyword string, BASEURL string, saveRes *[][]web, allWebs *[]web) {
 	// Initialize local variable
 	timeStart := time.Now()
@@ -23,6 +22,10 @@ func gocollyScrapeBase(w web, keyword string, BASEURL string, saveRes *[][]web, 
 	// Initialize storage
 	temp := ResultEntity{0, w}
 	storage = append(storage, []ResultEntity{temp})
+	if w.Title == keyword{
+		*saveRes = [][]web{{w}}
+		return
+	}
 
 	var wg sync.WaitGroup
 
