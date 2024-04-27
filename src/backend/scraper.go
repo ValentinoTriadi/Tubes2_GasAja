@@ -42,6 +42,7 @@ func main() {
 	router.HandleFunc("/api/scrape/bfs2", bfsScrapeHandler).Methods("POST")
 	router.HandleFunc("/api/scrape/bfs", gocollytest).Methods("POST")
 	router.HandleFunc("/api/scrape/bfs3", gocollyTestKucing).Methods("GET")
+	router.HandleFunc("/api/scrape/bfs2", idsScrapeHandler).Methods("POST")
 
 	enchancedRouter := enableCORS(jsonContentTypeMiddleware(router))
 
@@ -171,4 +172,40 @@ func gocollyTestKucing(w http.ResponseWriter, r *http.Request){
 	// fmt.Println("Time: ", time.Since(timestart))
 	// fmt.Println("Total: ", count)
 	// fmt.Println(res)
+}
+
+
+/* ============================================================================ */
+/* =================================IDS Scrape================================= */
+/* ============================================================================ */
+func idsScrapeHandler(w http.ResponseWriter, r *http.Request) {
+	var input Input
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	baseURL := "https://" + input.Lang + ".wikipedia.org"
+	startWeb := web{Url: "/wiki/" + strings.ReplaceAll(input.Start, " ", "_"), Title: input.Start}
+	tree := Tree{Root: Node{Value: startWeb, Depth: 0}}
+	var webs []web
+	var count int
+	var allWebs []web
+
+	timeStart := time.Now()
+	findSolution(&tree.Root, input.Keyword, &count, baseURL, &webs, &allWebs)
+	timeEnd := time.Now()
+
+	result := struct {
+		Webs  []web
+		Time  string
+		Total int
+	}{
+		Webs:  webs,
+		Time:  timeEnd.Sub(timeStart).String(),
+		Total: len(allWebs),
+	}
+
+	fmt.Println("End scraping...")
+	json.NewEncoder(w).Encode(result)
 }
