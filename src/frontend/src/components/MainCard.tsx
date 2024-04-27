@@ -30,7 +30,7 @@ export const MainCard = () => {
         <div className="lg:p-24 p-5 py-20 w-full h-screen flex items-center justify-center">
             <Card className="w-full sm:w-[99%] md:w-[97%] lg:w-[95%] bg-card rounded-md bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-70 border border-border z-0">
                 <CardHeader>
-                    <h1 className="text-3xl font-bold">Welcome to <strong>GasAja</strong> WikiRace!</h1>
+                    <h1 className="text-3xl font-bold">Welcome to <strong>GasAja</strong> WikiRace Solver!</h1>
                     <hr className="border-t-2 border-primary mt-2 w-full" />
                 </CardHeader>
                 <CardContent>

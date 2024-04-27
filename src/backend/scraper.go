@@ -144,8 +144,6 @@ func gocollytest(w http.ResponseWriter, r *http.Request) {
 	gocollyScrapeBase(web{"/wiki/" + strings.ReplaceAll(i.Start, " ", "_"), i.Start}, i.Keyword, BASEURL, &res, &allWebs)
 	timeEnd := time.Now()
 
-	fmt.Println(allWebs)
-
 	// Encode the result into a struct and send it as a response
 	result := struct {
 		Webs    [][]web
