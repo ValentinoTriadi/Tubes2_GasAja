@@ -2,7 +2,6 @@
 
 import { DataProps } from "@/components/MainCard";
 import axios from "axios";
-import { env } from "process";
 
 export const scrape = async (data: DataProps) => {
 

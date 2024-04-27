@@ -41,8 +41,7 @@ func main() {
 	router.HandleFunc("/", helloWorld).Methods("GET")
 	router.HandleFunc("/api/scrape/bfs2", bfsScrapeHandler).Methods("POST")
 	router.HandleFunc("/api/scrape/bfs", gocollytest).Methods("POST")
-	router.HandleFunc("/api/scrape/bfs3", gocollyTestKucing).Methods("GET")
-	router.HandleFunc("/api/scrape/bfs2", idsScrapeHandler).Methods("POST")
+	router.HandleFunc("/api/scrape/ids", idsScrapeHandler).Methods("POST")
 
 	enchancedRouter := enableCORS(jsonContentTypeMiddleware(router))
 
@@ -74,6 +73,7 @@ func jsonContentTypeMiddleware(next http.Handler) http.Handler {
 func helloWorld(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode("Hello World")
 }
+
 
 
 /* ============================================================================ */
@@ -119,10 +119,11 @@ func bfsScrapeHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-/* ============================================================================ */
-/* =================================BFS Scrape================================= */
-/* ============================================================================ */
 
+
+/* ============================================================================ */
+/* ==============================BFS Scrape(USED)============================== */
+/* ============================================================================ */
 
 func gocollytest(w http.ResponseWriter, r *http.Request) {
 	// Decode the request body into an Input struct
@@ -161,21 +162,12 @@ func gocollytest(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-func gocollyTestKucing(w http.ResponseWriter, r *http.Request){
-	// var res [][]web
-	// var allWebs []web
-	// count := 0
-	// timestart := time.Now()
-	// gocollyScrapeBase(web{"/wiki/Munich", "Munich"}, "Fischlham", "https://en.wikipedia.org", &res, &count, &allWebs)
-	// fmt.Println("Time: ", time.Since(timestart))
-	// fmt.Println("Total: ", count)
-	// fmt.Println(res)
-}
 
 
 /* ============================================================================ */
 /* =================================IDS Scrape================================= */
 /* ============================================================================ */
+
 func idsScrapeHandler(w http.ResponseWriter, r *http.Request) {
 	var input Input
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
