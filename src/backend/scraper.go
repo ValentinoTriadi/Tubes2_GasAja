@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	// "github.com/PuerkitoBio/goquery"
+	// "github.com/PuerkitoBio/goquery"	
 	"github.com/gorilla/mux"
 )
 
@@ -21,7 +21,6 @@ type web struct {
 type Input struct {
 	Keyword string `json:"keyword"`
 	Start   string `json:"start"`
-	Limit   int    `json:"limit"`
 	Lang	string `json:"lang"`
 }
 
@@ -34,13 +33,15 @@ var GlobalLimit int
 
 func main() {
 	// Set Runtime Limit
-	debug.SetMaxThreads(100000)
+	debug.SetMaxThreads(500)
 	// Create Router
     router := mux.NewRouter()
 
 	// Handle route
 	router.HandleFunc("/", helloWorld).Methods("GET")
-	router.HandleFunc("/api/scrape/bfs", bfsScrapeHandler).Methods("POST")
+	router.HandleFunc("/api/scrape/bfs2", bfsScrapeHandler).Methods("POST")
+	router.HandleFunc("/api/scrape/bfs", gocollytest).Methods("POST")
+	router.HandleFunc("/api/scrape/bfs3", gocollyTestKucing).Methods("GET")
 
 	enchancedRouter := enableCORS(jsonContentTypeMiddleware(router))
 
@@ -120,3 +121,54 @@ func bfsScrapeHandler(w http.ResponseWriter, r *http.Request) {
 /* ============================================================================ */
 /* =================================BFS Scrape================================= */
 /* ============================================================================ */
+
+
+func gocollytest(w http.ResponseWriter, r *http.Request) {
+	// Decode the request body into an Input struct
+	var i Input
+	err := json.NewDecoder(r.Body).Decode(&i)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	var res [][]web
+	var allWebs = []web{}
+
+	// Base URL
+	BASEURL := "https://" + i.Lang + ".wikipedia.org"
+
+	// Start scraping
+	timeStart := time.Now()
+	// gocollyScrape(web{"/wiki/" + strings.ReplaceAll(i.Start, " ", "_"), i.Start}, i.Keyword, &count, &BASEURL, &res)
+	gocollyScrapeBase(web{"/wiki/" + strings.ReplaceAll(i.Start, " ", "_"), i.Start}, i.Keyword, BASEURL, &res, &allWebs)
+	timeEnd := time.Now()
+
+	fmt.Println(allWebs)
+
+	// Encode the result into a struct and send it as a response
+	result := struct {
+		Webs    [][]web
+		Time    string
+		Total   int
+	}{
+		Webs:    res,
+		Time:    timeEnd.Sub(timeStart).String(),
+		Total:   len(allWebs),
+	}
+	
+	fmt.Println("End scraping...")
+
+	json.NewEncoder(w).Encode(result)
+}
+
+func gocollyTestKucing(w http.ResponseWriter, r *http.Request){
+	// var res [][]web
+	// var allWebs []web
+	// count := 0
+	// timestart := time.Now()
+	// gocollyScrapeBase(web{"/wiki/Munich", "Munich"}, "Fischlham", "https://en.wikipedia.org", &res, &count, &allWebs)
+	// fmt.Println("Time: ", time.Since(timestart))
+	// fmt.Println("Total: ", count)
+	// fmt.Println(res)
+}
