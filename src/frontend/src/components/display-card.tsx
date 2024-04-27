@@ -20,7 +20,7 @@ interface props {
 }
 
 export const DisplayCard = ({ data, result } : props) => {
-    const {Algorithm, StartKeyword, SearchKeyword, MaxIteration, Language} = data;
+    const {Algorithm, StartKeyword, SearchKeyword, Language} = data;
     return (
         <div className="flex grow flex-wrap gap-5 max-w-full w-2/3">
             <Card className="min-w-[500px] max-w-full w-1/2 grow bg-popover rounded-md bg-clip-padding backdrop-filter backdrop-blur-md ">
@@ -33,7 +33,6 @@ export const DisplayCard = ({ data, result } : props) => {
                         <h1><strong className="text-muted-foreground">Algorithm:</strong> {Algorithm === "ids" ? "Iterative Deepening Search" : Algorithm === "bfs" ? "Breadth First Search" : ""}</h1>
                         <h1><strong className="text-muted-foreground">Start Keyword:</strong> {StartKeyword}</h1>
                         <h1><strong className="text-muted-foreground">Search Keyword:</strong> {SearchKeyword}</h1>
-                        {Algorithm == "ids" ? <h1><strong className="text-muted-foreground">Max Iteration:</strong> {MaxIteration}</h1> : ""}
                     </div>
                     <hr className="border-t-2 border-[var(--blue-11)] my-2 w-full" />
                     <ScrollArea className="max-h-full h-[400px]">

@@ -23,8 +23,8 @@ export const scrape = async (data: DataProps) => {
             }
         }
     );
-    // console.log(response.data);
-    // console.log(response.data.Webs)
+    console.log(response.data);
+    console.log(response.data.Webs)
     // // console log response.data.webs
     // for (let i = 0; i < response.data.Webs.length; i++) {
     //     for (let j = 0; j < response.data.Webs[i].length; j++) {

@@ -187,11 +187,11 @@ func idsScrapeHandler(w http.ResponseWriter, r *http.Request) {
 	timeEnd := time.Now()
 
 	result := struct {
-		Webs  []web
+		Webs  [][]web
 		Time  string
 		Total int
 	}{
-		Webs:  webs,
+		Webs:  [][]web{webs},
 		Time:  timeEnd.Sub(timeStart).String(),
 		Total: len(allWebs),
 	}

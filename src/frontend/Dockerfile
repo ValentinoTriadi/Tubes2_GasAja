@@ -5,7 +5,7 @@ WORKDIR /app/frontend
 
 # Install app dependencies
 COPY package*.json ./
-RUN npm install
+RUN npm install -D @swc/cli @swc/core
 
 # Bundle app source
 COPY . .
